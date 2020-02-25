@@ -204,11 +204,37 @@
         aryAjax_Settings[13] = -1;
         aryAjax_Settings[14] = 'false';
         aryAjax_Settings[15] = 'divWarning';
-        aryAjax_Settings[16] = 'InsertCount';
+        aryAjax_Settings[16] = 'Append';
 
         aryAjax_Settings[6] = 'intCDA_1291_Id';//form id
         aryAjax_Settings[12] = 'id';
-        aryAjax_Settings[17] = 'strCDA_1291_field_0_223';//create a new field
+        aryAjax_Settings[17] = 'strCDA_1291_field_0_236';//create a new field
+
+
+        aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value;
+        aryAjax_Settings[23] = document.getElementById('intSystemGenerated_UserId').value;
+        aryAjax_Settings[24] = document.getElementById('intSystemGenerated_LoginKey').value;
+        aryAjax_Settings[28] = 'MPRNCheckStatus()'; //if it is one alert mprn yoke
+
+
+        fn_Ajax_BE_Process();
+
+    };
+    function MPRNCheckStatus() {
+        aryAjax_Settings[0] = 'client_fexco';
+        aryAjax_Settings[1] = '';
+        aryAjax_Settings[2] = '';
+        aryAjax_Settings[3] = '1291';
+        aryAjax_Settings[4] = 'strCDA_1291_field_0_14';//mprn
+        aryAjax_Settings[5] = document.getElementById('strCDA_1291_field_0_14').value;//mprn
+        aryAjax_Settings[13] = -1;
+        aryAjax_Settings[14] = 'false';
+        aryAjax_Settings[15] = 'divWarning';
+        aryAjax_Settings[16] = 'Append';
+
+        aryAjax_Settings[6] = 'strCDA_1291_Status';//form id
+        aryAjax_Settings[12] = 'Status';
+        aryAjax_Settings[17] = 'strCDA_1291_field_0_237';//create a new field
 
 
         aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value;
@@ -216,19 +242,11 @@
         aryAjax_Settings[24] = document.getElementById('intSystemGenerated_LoginKey').value;
         aryAjax_Settings[28] = 'checkMprn()'; //if it is one alert mprn yoke
 
-
         fn_Ajax_BE_Process();
 
     };
 
 
-    function checkMprn() {
-
-        if (document.getElementById('strCDA_1291_field_0_223').value > 1) {
-
-            alert('The MPRN of' + ' ' + document.getElementById('strCDA_1291_field_0_14').value + ' ' + 'has been used in a previous application.Please lookup this MPRN which is assoicated with another record before processing this application');
-        }
-    }    
 
     function showStatus() {
 
@@ -301,7 +319,70 @@
     }
 
     showStatus();  
+function checkMprn() {
+       
 
+       var mprnCheck = document.getElementById('strCDA_1291_field_0_236');
+       var mprnMatchStatus = document.getElementById('strCDA_1291_field_0_237');
+
+       var mprnMatchIDArray = mprnCheck.value.split(',');//trim spaces
+       var mprnMatchStatusArray = mprnMatchStatus.value.split(',');
+
+       
+       //remove blanks
+       for(var i = 0;i < mprnMatchIDArray.length; i++){
+           mprnMatchIDArray[i] = trim(mprnMatchIDArray[i]);
+           if(mprnMatchIDArray[i] == " " || mprnMatchIDArray[i] == ""){
+               mprnMatchIDArray.splice(i, 1);
+           }
+       }
+       //remove blanks
+       for(var i = 0;i < mprnMatchStatusArray.length; i++){
+           mprnMatchStatusArray[i] = trim(mprnMatchStatusArray[i]);
+           if(mprnMatchStatusArray[i] == " " || mprnMatchStatusArray[i] == ""){
+               mprnMatchStatusArray.splice(i, 1);
+           }
+       }
+ 
+       //remove cancellation records from result
+    for(var i = mprnMatchStatusArray.length -1; i >= 0 ; i--){
+           if(mprnMatchStatusArray[i].includes('Cancellation')){
+               mprnMatchStatusArray.splice(i, 1);
+               mprnMatchIDArray.splice(i, 1);
+           }
+       }
+       //remove current record from result
+       var currentRecordID = document.getElementById('intCDA_Id');
+       
+       for(var i=0;i < mprnMatchIDArray.length;i++){
+           if(trim(mprnMatchIDArray[i]) == currentRecordID.value){
+               mprnMatchIDArray.splice(i, 1);
+              // mprnMatchStatusArray.splice(i, 1);
+           } 
+       }
+
+       var status = document.getElementById('strPreviousStatus');
+       for(var i=0;i < mprnMatchStatusArray.length;i++){
+           if(trim(mprnMatchStatusArray[i]) == status.value){
+           //    mprnMatchIDArray.splice(i, 1);
+           mprnMatchStatusArray.splice(i, 1);
+           } 
+       }
+
+
+       mprnCheck.value = mprnMatchIDArray.join();
+       mprnMatchStatus.value = mprnMatchStatusArray.join();
+       mprnMatchStatus.value = mprnMatchStatus.value.replace(",", "");
+
+       setTimeout(function(){ 
+       if (document.getElementById('strCDA_1291_field_0_237').value != '') {
+           debugger;
+           console.log('value' + document.getElementById('strCDA_1291_field_0_237').value);
+           alert('The MPRN of' + ' ' + document.getElementById('strCDA_1291_field_0_14').value + ' ' + 'has been used in a previous application.Please lookup this MPRN which is assoicated with another record before processing this application');
+           document.getElementById('strCDA_1291_field_0_237').value = 'Message Completed';
+       }
+       }, 800);
+   }
     ///hide Callback etc fields at bottom of form
     document.getElementById('tableBE_Callback').style.display = 'none'; //Hides the call back
     document.getElementById('tableBE_AssignTask').style.display = 'none'; //Hides the assign task
@@ -1076,7 +1157,7 @@ function fn_LiveSearchMPRN_Database() {
 
             aryAjax_Settings[6] = 'intCDA_1281_Id,strCDA_1281_field_0_2,strCDA_1281_field_0_0,strCDA_1281_field_0_11';                                  //The field in the other campaign to be returned order = value, text
             aryAjax_Settings[12] = 'ID,Customer_Name,AppID,status';                                             //Headings for xml troubleshooting
-            aryAjax_Settings[17] = 'strCDA_1291_field_0_233,strCDA_1291_field_0_25,strCDA_1291_field_0_228,strCDA_1291_field_0_229';                                 //The field in the current campaign into which the products will be inserted.
+            aryAjax_Settings[17] = 'strCDA_1291_field_0_240,strCDA_1291_field_0_25,strCDA_1291_field_0_238,strCDA_1291_field_0_239';                                 //The field in the current campaign into which the products will be inserted.
 
 			//Use my login to allow me to search
 			aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value; 	//Auto Login - System
@@ -1093,37 +1174,6 @@ function fn_LiveSearchMPRN_Database() {
 		
 	}
 }
-
-function openInNewTab(value) {
-        var win = window.open('https://ww3.allnone.ie/client/client_fexco/inboundsales/userInbound-details.asp?intCampaign_Id=1281&ID='+value, '_blank');
-        win.focus();
-    }
-    function openInNewTab2(value) {
-        var win = window.open('https://ww3.allnone.ie/client/client_fexco/inboundsales/userInbound-details.asp?intCampaign_Id=1297&ID='+value, '_blank');
-        win.focus();
-    }
-
-    function setClicks() {
-        var matchedRecords = document.getElementsByName('mylink');
-        Array.from(matchedRecords).forEach(function (element) {
-            element.value = element.value.replace(' »', '');
-            element.removeAttribute("onclick");
-
-            if (!element.nextSibling.textContent.toLowerCase().includes('cancellation')) {
-            element.onclick = function () {
-                openInNewTab(element.value);
-            };
-            }
-
-            if (element.nextSibling.textContent.toLowerCase().includes('cancellation')) {
-            element.onclick = function () {
-                openInNewTab2(element.value);
-            };
-            }
-        });
-}
-
-
 
 function fn_LiveSearchCancellation_Database() {
 	if (typeof aryAjax_Settings=="undefined")
@@ -1147,7 +1197,47 @@ function fn_LiveSearchCancellation_Database() {
 
             aryAjax_Settings[6] = 'intCDA_1297_Id,strCDA_1297_field_0_1,strCDA_1297_field_0_2,strCDA_1297_field_0_4,strCDA_1297_Status';                                  //The field in the other campaign to be returned order = value, text
             aryAjax_Settings[12] = 'ID,FirstName,Surname, AppID,status';                                             //Headings for xml troubleshooting
-            aryAjax_Settings[17] = 'strCDA_1291_field_0_234,strCDA_1291_field_0_235,strCDA_1291_field_0_236,strCDA_1291_field_0_237,strCDA_1291_field_0_238';                                 //The field in the current campaign into which the products will be inserted.
+            aryAjax_Settings[17] = 'strCDA_1291_field_0_241,strCDA_1291_field_0_242,strCDA_1291_field_0_243,strCDA_1291_field_0_244,strCDA_1291_field_0_245';                                 //The field in the current campaign into which the products will be inserted.
+
+			//Use my login to allow me to search
+			aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value; 	//Auto Login - System
+			aryAjax_Settings[23] = document.getElementById('intSystemGenerated_UserId').value; 	//Auto Login - User
+			aryAjax_Settings[24] = document.getElementById('intSystemGenerated_LoginKey').value; 	//Auto Login - SessionId
+
+            			//LiveSearch fields
+			aryAjax_Settings[25] = "";						    //Field to get Id when button clicked
+			aryAjax_Settings[26] = "";							                    //Function to be performed after update	
+			aryAjax_Settings[27] = "";				//Field to get Description when button clicked
+            aryAjax_Settings[28]    = 'fn_LiveSearchCancellation_Manual();';
+
+			fn_Ajax_BE_Process();
+		
+	}
+}
+
+function fn_LiveSearchCancellation_Manual() {//---------------------------------------------------------------------------------------------------------------------------NEW
+	if (typeof aryAjax_Settings=="undefined")
+		alert("Library did not load");
+	else {
+	//	var strValue = document.getElementById('strLiveSearchText').value;
+		var divLiveSearch = document.getElementById('divLiveSearch3');
+		
+			aryAjax_Settings[0] = "client_fexco"; 							//Your system name
+			aryAjax_Settings[1] = ""; 								//The CMI API Username
+			aryAjax_Settings[2] = ""; 								//The CMI API User password
+
+			aryAjax_Settings[3] = "1291"; 								//The Id of the campaign
+			aryAjax_Settings[4] = "strCDA_1291_field_0_14"; 						//The search field
+			aryAjax_Settings[5] = document.getElementById('strCDA_1291_field_0_14').value;							//The search value
+			
+			aryAjax_Settings[13] = "-1";								//Id of the current record, used for delimiting and not repeating current case
+			aryAjax_Settings[14] = "false";								//Click through to campaign?
+			aryAjax_Settings[15] = "divLiveSearch3";							//The id of the destination to which the matching links will be inserted
+			aryAjax_Settings[16] = "LiveSearch";							//The types of processing.
+
+            aryAjax_Settings[6] = 'intCDA_1291_Id,strCDA_1291_field_0_1,strCDA_1291_field_0_2,strCDA_1291_field_0_4,strCDA_1291_Status';                                  //The field in the other campaign to be returned order = value, text
+            aryAjax_Settings[12] = 'ID,FirstName,Surname,AppID,status';                                             //Headings for xml troubleshooting
+            aryAjax_Settings[17] = 'strCDA_1291_field_0_246,strCDA_1291_field_0_247,strCDA_1291_field_0_248,strCDA_1291_field_0_249,strCDA_1291_field_0_250';                                 //The field in the current campaign into which the products will be inserted.
 
 			//Use my login to allow me to search
 			aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value; 	//Auto Login - System
@@ -1168,9 +1258,11 @@ function fn_LiveSearchCancellation_Database() {
 
     //function to check MPRN Database and if MPRN exists bring back the Customer Name Associated with it
     function fn_InsertFromMPRNTable() {
-
-
-        aryAjax_Settings[0] = 'client_fexco';                                           //Your system name
+        if (typeof aryAjax_Settings=="undefined")
+		alert("Library did not load");
+	else {
+     
+            aryAjax_Settings[0] = 'client_fexco';                                           //Your system name
         aryAjax_Settings[1] = '';                                                          //The CMI API Username
         aryAjax_Settings[2] = '';                                                          //The CMI API User password
         aryAjax_Settings[3] = '1281';                                                   //The campaign which contains the product list
@@ -1182,29 +1274,82 @@ function fn_LiveSearchCancellation_Database() {
         aryAjax_Settings[15] = 'divWarning';                                                //Where to draw error messages if any
         aryAjax_Settings[16] = 'Insert';                                                 //Engine to use i.e. Populate
 
-        aryAjax_Settings[6] = 'strCDA_1281_field_0_2';                                  //The field in the other campaign to be returned order = value, text
-        aryAjax_Settings[12] = 'Customer_Name';                                             //Headings for xml troubleshooting
-        aryAjax_Settings[17] = 'strCDA_1291_field_0_25';                                 //The field in the current campaign into which the products will be inserted.
+        aryAjax_Settings[6] = 'strCDA_1281_field_0_2,strCDA_1281_field_0_0,strCDA_1281_field_0_11';                                //The field in the other campaign to be returned order = value, text
+        aryAjax_Settings[12] = 'Customer_Name,AppID,status';                                        //Headings for xml troubleshooting
+        aryAjax_Settings[17] = 'strCDA_1291_field_0_25,strCDA_1291_field_0_238,strCDA_1291_field_0_239';                             //The field in the current campaign into which the products will be inserted.
 
         aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value;       //Auto Login - System
         aryAjax_Settings[23] = document.getElementById('intSystemGenerated_UserId').value;          //Auto Login - User
         aryAjax_Settings[24] = document.getElementById('intSystemGenerated_LoginKey').value;        //Auto Login - SessionId
         aryAjax_Settings[28]    = 'fn_LiveSearchMPRN_Database();';
         fn_Ajax_BE_Process();
-        //document.getElementById('strContact_Comments').value=aryAjax_Settings[7]
-
+        //document.getElementById('strContact_Comments').value=aryAjax_Settings[7]  
+    }     
 
     }
+        function openInNewTab(value) {
+        var win = window.open('https://ww3.allnone.ie/client/client_fexco/inboundsales/userInbound-details.asp?intCampaign_Id=1281&ID='+value, '_blank');
+        win.focus();
+    }
+    function openInNewTab2(value) {
+        var win = window.open('https://ww3.allnone.ie/client/client_fexco/inboundsales/userInbound-details.asp?intCampaign_Id=1297&ID='+value, '_blank');
+        win.focus();
+    }
+    function openInNewTab3(value) {
+        var win = window.open('https://ww3.allnone.ie/client/client_fexco/inboundsales/userInbound-details.asp?intCampaign_Id=1291&ID='+value, '_blank');
+        win.focus();
+    }
+
+    function setClicks() {
+        var matchedRecords = document.getElementsByName('mylink');
+        Array.from(matchedRecords).forEach(function (element) {
+          
+            element.value = element.value.replace(' »', '');
+            element.removeAttribute("onclick");
+
+            //first tab
+            if(element.parentElement.id ==  'divLiveSearch'){
+            element.onclick = function () {
+                openInNewTab(element.value);
+            };
+            }
+            //second tab
+            if(element.parentElement.id ==  'divLiveSearch2'){
+                element.onclick = function () {
+                openInNewTab2(element.value);
+            };
+            }
+            //third tab
+            if(element.parentElement.id ==  'divLiveSearch3'){
+                //if its not a cancellation - hide it
+                if(!element.nextSibling.textContent.toLowerCase().includes('cancellation')){
+                element.style.display = 'none';
+                element.nextSibling.textContent = '';
+            }
+                element.onclick = function () {
+                openInNewTab3(element.value);
+            };
+            }
+        });
+}
+    
 
 
 
     //check to ensure MPRN on page
     if (document.getElementById('strCDA_1291_field_0_14').value !== '' && document.getElementById('strCDA_1291_field_0_14').value !== 0) {
-        fn_InsertFromMPRNTable();
+        
+        //if no payments processed on this MPRN, check this
+        
+        fn_LiveSearchCancellation_Database();
+        
+        fn_InsertFromMPRNTable();//this will throw error if there is no Payment Found
+    
         //function to pop an alert - set for 1.5 seconds after page loads to give AJAX call time to populate Customer Name with inital AJAX check
         setTimeout(function fn_Create_Alert() {
             if (document.getElementById('strCDA_1291_field_0_25').value.length == '0') {
                 alert('This MPRN was not previously paid a grant before, please proceed with next step in Application Checklist');
+                
             }
             else if (document.getElementById('strCDA_1291_field_0_25').value.length > 0) {
                 alert('A grant has previously been paid to ' + document.getElementById('strCDA_1291_field_0_25').value + '. Please reject this Application');
@@ -2652,6 +2797,7 @@ fn_Ajax_bxp_Process();                                                          
     var paperworkDueBackDate = document.getElementById('strCDA_1291_field_0_225');
 
     $JQ(document).ready(function () {
+        
         HideShowTabs();
         taxiDispaly();
 
