@@ -191,10 +191,9 @@
     $JQ('tr#tableid_228_tr').removeAttr('valign');
 
 
-
-
     function MPRNCheck() {
 
+        console.log('MPRNCheck');
         aryAjax_Settings[0] = 'client_fexco';
         aryAjax_Settings[1] = '';
         aryAjax_Settings[2] = '';
@@ -221,6 +220,7 @@
 
     };
     function MPRNCheckStatus() {
+        console.log('MPRNCheckStatus');
         aryAjax_Settings[0] = 'client_fexco';
         aryAjax_Settings[1] = '';
         aryAjax_Settings[2] = '';
@@ -320,8 +320,8 @@
 
     showStatus();  
 function checkMprn() {
+    console.log('checkMprn');
        
-
        var mprnCheck = document.getElementById('strCDA_1291_field_0_236');
        var mprnMatchStatus = document.getElementById('strCDA_1291_field_0_237');
 
@@ -375,7 +375,7 @@ function checkMprn() {
        mprnMatchStatus.value = mprnMatchStatus.value.replace(",", "");
 
        setTimeout(function(){ 
-       if (document.getElementById('strCDA_1291_field_0_237').value != '') {
+       if (document.getElementById('strCDA_1291_field_0_237').value.trim() != '') {
            debugger;
            console.log('value' + document.getElementById('strCDA_1291_field_0_237').value);
            alert('The MPRN of' + ' ' + document.getElementById('strCDA_1291_field_0_14').value + ' ' + 'has been used in a previous application.Please lookup this MPRN which is assoicated with another record before processing this application');
@@ -1136,11 +1136,13 @@ function checkMprn() {
 // The LiveSearch Lookup settings	
 --------------------------------------*/
 function fn_LiveSearchMPRN_Database() {
+    console.log('fn_LiveSearchMPRN_Database');
 	if (typeof aryAjax_Settings=="undefined")
 		alert("Library did not load");
 	else {
 		//var strValue = document.getElementById('strLiveSearchText').value;
-		var divLiveSearch = document.getElementById('divLiveSearch');
+       
+            var divLiveSearch = document.getElementById('divLiveSearch');
 		
 			aryAjax_Settings[0] = "client_fexco"; 							//Your system name
 			aryAjax_Settings[1] = ""; 								//The CMI API Username
@@ -1171,11 +1173,12 @@ function fn_LiveSearchMPRN_Database() {
             aryAjax_Settings[28]    = 'fn_LiveSearchCancellation_Database();';
 
 			fn_Ajax_BE_Process();
-		
-	}
+        }
+
 }
 
 function fn_LiveSearchCancellation_Database() {
+    console.log('fn_LiveSearchCancellation_Database');
 	if (typeof aryAjax_Settings=="undefined")
 		alert("Library did not load");
 	else {
@@ -1216,7 +1219,8 @@ function fn_LiveSearchCancellation_Database() {
 }
 
 function fn_LiveSearchCancellation_Manual() {//---------------------------------------------------------------------------------------------------------------------------NEW
-	if (typeof aryAjax_Settings=="undefined")
+    console.log('fn_LiveSearchCancellation_Manual');
+    if (typeof aryAjax_Settings=="undefined")
 		alert("Library did not load");
 	else {
 	//	var strValue = document.getElementById('strLiveSearchText').value;
@@ -1258,11 +1262,12 @@ function fn_LiveSearchCancellation_Manual() {//---------------------------------
 
     //function to check MPRN Database and if MPRN exists bring back the Customer Name Associated with it
     function fn_InsertFromMPRNTable() {
+        console.log('fn_InsertFromMPRNTable');
         if (typeof aryAjax_Settings=="undefined")
 		alert("Library did not load");
 	else {
      
-            aryAjax_Settings[0] = 'client_fexco';                                           //Your system name
+        aryAjax_Settings[0] = 'client_fexco';                                           //Your system name
         aryAjax_Settings[1] = '';                                                          //The CMI API Username
         aryAjax_Settings[2] = '';                                                          //The CMI API User password
         aryAjax_Settings[3] = '1281';                                                   //The campaign which contains the product list
@@ -1281,7 +1286,7 @@ function fn_LiveSearchCancellation_Manual() {//---------------------------------
         aryAjax_Settings[22] = document.getElementById('intSystemGenerated_CompanyId').value;       //Auto Login - System
         aryAjax_Settings[23] = document.getElementById('intSystemGenerated_UserId').value;          //Auto Login - User
         aryAjax_Settings[24] = document.getElementById('intSystemGenerated_LoginKey').value;        //Auto Login - SessionId
-        aryAjax_Settings[28]    = 'fn_LiveSearchMPRN_Database();';
+        aryAjax_Settings[28]    = '';
         fn_Ajax_BE_Process();
         //document.getElementById('strContact_Comments').value=aryAjax_Settings[7]  
     }     
@@ -1330,32 +1335,18 @@ function fn_LiveSearchCancellation_Manual() {//---------------------------------
                 openInNewTab3(element.value);
             };
             }
+
+        //if(element.innerText == ""){
+        //    element.style.display = 'none';
+       // }
+
         });
 }
     
 
 
 
-    //check to ensure MPRN on page
-    if (document.getElementById('strCDA_1291_field_0_14').value !== '' && document.getElementById('strCDA_1291_field_0_14').value !== 0) {
-        
-        //if no payments processed on this MPRN, check this
-        
-        fn_LiveSearchCancellation_Database();
-        
-        fn_InsertFromMPRNTable();//this will throw error if there is no Payment Found
-    
-        //function to pop an alert - set for 1.5 seconds after page loads to give AJAX call time to populate Customer Name with inital AJAX check
-        setTimeout(function fn_Create_Alert() {
-            if (document.getElementById('strCDA_1291_field_0_25').value.length == '0') {
-                alert('This MPRN was not previously paid a grant before, please proceed with next step in Application Checklist');
-                
-            }
-            else if (document.getElementById('strCDA_1291_field_0_25').value.length > 0) {
-                alert('A grant has previously been paid to ' + document.getElementById('strCDA_1291_field_0_25').value + '. Please reject this Application');
-            }
-        }, 1500);
-    }
+
 
     /**********************************************
        Application: The below function kicks off the ajax call to update the counter number
@@ -2254,11 +2245,36 @@ fn_Ajax_bxp_Process();                                                          
 
 
     // A $( document ).ready() block.
-    $JQ(document).ready(function () {
+    window.addEventListener('load', function () {
         //The following code takes the concatenated name/address fields from the API and splits them on Cap Letters
         //It also removes the [bxp_Comma] tag that is appended to some strings if a comma is entered into the web form in error
 
-
+            //check to ensure MPRN on page
+    if (document.getElementById('strCDA_1291_field_0_14').value !== '' && document.getElementById('strCDA_1291_field_0_14').value !== 0) {
+        
+        //if no payments processed on this MPRN, check this
+        
+      //  fn_LiveSearchCancellation_Database();
+      fn_InsertFromMPRNTable();
+    
+        //function to pop an alert - set for 1.5 seconds after page loads to give AJAX call time to populate Customer Name with inital AJAX check
+        setTimeout(function fn_Create_Alert() {
+            if (document.getElementById('strCDA_1291_field_0_25').value.length == '0') {
+                alert('This MPRN was not previously paid a grant before, please proceed with next step in Application Checklist');
+                
+                setTimeout(() => {
+                    fn_LiveSearchMPRN_Database();
+                }, 3000);
+            }
+            else if (document.getElementById('strCDA_1291_field_0_25').value.length > 0) {
+                alert('A grant has previously been paid to ' + document.getElementById('strCDA_1291_field_0_25').value + '. Please reject this Application');
+               
+                setTimeout(() => {
+                    fn_LiveSearchMPRN_Database();
+                }, 3000);
+            }
+        }, 1500);
+    }
 
 
 
@@ -2797,6 +2813,9 @@ fn_Ajax_bxp_Process();                                                          
     var paperworkDueBackDate = document.getElementById('strCDA_1291_field_0_225');
 
     $JQ(document).ready(function () {
+
+ 
+      
         
         HideShowTabs();
         taxiDispaly();
@@ -2863,6 +2882,8 @@ fn_Ajax_bxp_Process();                                                          
         decodeElement(county);
         decodeElement(openingHeader);
         
+
+ 
 
     });
 
